@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const cartItems = [
   {
@@ -48,6 +49,12 @@ export default function CartPage() {
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]">
         <section className="space-y-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-semibold text-slate-900">Cart items</h2>
+            <Link to="/shop" className="text-sm font-semibold text-blue-600 hover:text-blue-700 no-underline transition-colors">
+              ← Continue shopping
+            </Link>
+          </div>
           {cartItems.map((item) => (
             <article
               key={item.id}
@@ -64,12 +71,17 @@ export default function CartPage() {
                     <p className="text-lg font-semibold text-slate-900">${item.price.toFixed(2)}</p>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
-                    <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1">
-                      <span>Qty</span>
-                      <span className="font-semibold text-slate-900">{item.qty}</span>
+                    <div className="flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
+                      <button className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors">
+                        −
+                      </button>
+                      <span className="font-semibold text-slate-900 px-2">{item.qty}</span>
+                      <button className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors">
+                        +
+                      </button>
                     </div>
                     <span className="text-emerald-600">{item.delivery}</span>
-                    <button className="ml-auto text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    <button className="ml-auto text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 hover:text-red-600 transition-colors">
                       Remove
                     </button>
                   </div>
@@ -94,7 +106,7 @@ export default function CartPage() {
               <span className="text-2xl font-semibold text-slate-900">${subtotal.toFixed(2)}</span>
             </div>
           </div>
-          <button className="mt-6 w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white">
+          <button className="mt-6 w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white hover:bg-slate-800 hover:shadow-lg transition-all">
             Proceed to checkout
           </button>
           <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600">

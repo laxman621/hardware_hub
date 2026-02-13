@@ -70,11 +70,9 @@ export default function Navbar(props) {
               </button>
             )}
 
-            <button className="flex items-center justify-center w-10 h-10 rounded-lg border-0 bg-transparent text-slate-400 hover:bg-slate-800/60 hover:text-blue-400 cursor-pointer transition-all" aria-label="Cart">
-              <Link to="/cart">
-                <ShoppingCart className="h-5 w-5" />
-              </Link>
-            </button>
+            <Link to="/cart" className="flex items-center justify-center w-10 h-10 rounded-lg border-0 bg-transparent text-slate-400 hover:bg-slate-800/60 hover:text-blue-400 cursor-pointer transition-all no-underline" aria-label="Cart">
+              <ShoppingCart className="h-5 w-5" />
+            </Link>
 
             <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold no-underline border-0 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30">
               <User className="h-4 w-4" />

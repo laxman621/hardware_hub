@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Home() {
   // TODO: Fetch categories from database
@@ -82,12 +83,12 @@ export default function Home() {
               Shop premium components, rent heavy equipment, and keep your tools running with expert service and support.
             </p>
             <div className="flex gap-4 mt-6 flex-wrap">
-              <button className="border-0 rounded-xl px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30">
+              <Link to="/shop" className="no-underline border-0 rounded-xl px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30">
                 Browse equipment
-              </button>
-              <button className="border border-slate-300 bg-transparent text-slate-900 px-4 py-3 rounded-xl font-semibold cursor-pointer hover:bg-slate-200/50 transition-all">
+              </Link>
+              <Link to="/rent" className="no-underline border border-slate-300 bg-transparent text-slate-900 px-4 py-3 rounded-xl font-semibold cursor-pointer hover:bg-slate-200/50 transition-all">
                 View rentals
-              </button>
+              </Link>
             </div>
             <div className="grid grid-cols-3 gap-6 mt-8">
               <div>
@@ -117,9 +118,9 @@ export default function Home() {
             <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-2xl p-6 shadow-lg flex flex-col gap-3">
               <h3 className="m-0 text-xl font-bold">Need equipment?</h3>
               <p className="m-0 text-slate-300/75">Rent heavy machinery, power tools, and specialized equipment.</p>
-              <button className="self-start border border-slate-700 rounded-xl px-3 py-2 bg-white/5 cursor-pointer font-semibold text-white hover:bg-white/10 transition-colors">
+              <Link to="/rent" className="self-start no-underline border border-slate-700 rounded-xl px-3 py-2 bg-white/5 cursor-pointer font-semibold text-white hover:bg-white/10 transition-colors">
                 Browse rentals
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -135,7 +136,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {categories.map((category) => (
-              <div key={category.id} className="bg-slate-50 rounded-2xl p-6 border-2 border-slate-200 flex flex-col gap-2 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:border-blue-300">
+              <Link to="/shop" key={category.id} className="no-underline bg-slate-50 rounded-2xl p-6 border-2 border-slate-200 flex flex-col gap-2 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:border-blue-300">
                 {category.imageUrl && (
                   <div className="w-full h-36 rounded-xl overflow-hidden bg-slate-200 mb-2">
                     <img src={category.imageUrl} alt={category.name} className="w-full h-full object-cover" />
@@ -143,7 +144,7 @@ export default function Home() {
                 )}
                 <h3 className="m-0 text-xl font-bold text-slate-900">{category.name}</h3>
                 <p className="m-0 text-slate-600 text-sm">{category.description}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -159,7 +160,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.map((product) => (
-              <article key={product.id} className="bg-white rounded-2xl p-6 border-2 border-slate-200 flex flex-col gap-3 min-h-[200px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:border-blue-400">
+              <Link to="/shop" key={product.id} className="no-underline bg-white rounded-2xl p-6 border-2 border-slate-200 flex flex-col gap-3 min-h-[200px] transition-all hover:-translate-y-1 hover:shadow-2xl hover:border-blue-400">
                 {product.imageUrl && (
                   <div className="w-full h-44 rounded-xl overflow-hidden bg-slate-100 mb-2">
                     <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
@@ -168,9 +169,9 @@ export default function Home() {
                 <span className="text-xs uppercase tracking-[0.2em] text-blue-600 font-bold">{product.label}</span>
                 <h3 className="m-0 text-xl font-bold">{product.name}</h3>
                 <p className="m-0 text-slate-600 text-sm">{product.description}</p>
-                {product.price && <div className="text-2xl font-bold text-slate-900 mt-auto">${product.price}</div>}
-                <button className="mt-auto bg-transparent border-0 text-blue-500 font-semibold cursor-pointer p-0 text-left hover:text-blue-600 transition-colors">View details →</button>
-              </article>
+                {product.price && <div className="text-2xl font-bold text-slate-900 mt-auto">{product.price}</div>}
+                <span className="mt-auto text-blue-500 font-semibold text-left hover:text-blue-600 transition-colors">View details →</span>
+              </Link>
             ))}
           </div>
         </div>
