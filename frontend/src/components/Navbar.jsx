@@ -1,6 +1,7 @@
-import { Search, ShoppingCart, User, Wrench, X } from 'lucide-react';
+import { Search, ShoppingCart, User, Wrench, X, LogOut } from 'lucide-react';
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const navigation = [
   { name: 'Shop', href: '/shop' },
@@ -10,7 +11,14 @@ const navigation = [
 
 export default function Navbar(props) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-slate-950 border-b border-slate-800/60 shadow-lg">
@@ -74,10 +82,25 @@ export default function Navbar(props) {
               <ShoppingCart className="h-5 w-5" />
             </Link>
 
-            <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold no-underline border-0 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Login</span>
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                <span className="hidden sm:inline text-sm text-slate-300">
+                  Hi, {user?.name || user?.email?.split('@')[0]}
+                </span>
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/60 text-slate-300 text-sm font-semibold border-0 cursor-pointer transition-all hover:bg-slate-700 hover:text-white"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold no-underline border-0 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Login</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

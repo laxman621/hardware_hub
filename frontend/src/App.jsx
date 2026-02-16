@@ -9,6 +9,7 @@ import RentPage from './pages/RentPage';
 import ServicesPage from './pages/ServicesPage';
 import RegisterPage from './pages/RegisterPage';
 import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import './App.css';
 
 function App() {
