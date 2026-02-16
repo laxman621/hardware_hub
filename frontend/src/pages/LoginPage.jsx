@@ -1,6 +1,48 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { authAPI } from '../utils/api'
+import { useAuth } from '../context/AuthContext'
 
-export default function Login() { 
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    console.log('Attempting login with:', { email, password: '***' })
+
+    try {
+      const data = await authAPI.login({ email, password });
+      console.log('Server response:', data)
+
+      if (data.success) {
+        // Use AuthContext login method
+        login(data.token, data.user);
+
+        console.log('Login successful, redirecting to home...')
+        
+        // Redirect to home page
+        navigate('/')
+        
+      } else {
+        setError(data.message || 'Login failed')
+      }
+    } catch (err) {
+      setError('Network error. Please try again.')
+      console.error('Login error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+  
   return (
   <div className='flex-1 flex items-center justify-center px-5 py-12 relative overflow-hidden bg-gradient-radial'>
    <section className="relative z-10 w-full max-w-4xl grid md:grid-cols-[1.05fr_1fr] bg-slate-50 rounded-3xl shadow-2xl overflow-hidden">
@@ -22,27 +64,60 @@ export default function Login() {
               </div>
             </div>
           </div>
-          <form className="p-12 flex flex-col gap-4 bg-slate-50">
+          <form onSubmit={handleSubmit} className="p-12 flex flex-col gap-4 bg-slate-50">
             <div>
               <h2 className="m-0 text-3xl font-bold">Log in</h2>
               <p className="mt-1.5 mb-0 text-slate-600">Use your email and password to continue.</p>
             </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                {error}
+              </div>
+            )}
+
             <label className="flex flex-col gap-2 text-sm text-slate-900">
               <span>Email</span>
-              <input type="email" placeholder="you@hardwarehub.com" required className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]" />
+              <input 
+                type="email" 
+                placeholder="you@hardwarehub.com" 
+                required 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]" 
+              />
             </label>
             <label className="flex flex-col gap-2 text-sm text-slate-900">
               <span>Password</span>
-              <input type="password" placeholder="Enter your password" required className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]" />
+              <input 
+                type="password" 
+                placeholder="Enter your password" 
+                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]" 
+              />
             </label>
             <div className="flex items-center justify-between gap-3 text-sm flex-wrap">
               <label className="inline-flex items-center gap-2 text-slate-600">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
                 Remember me
               </label>
               <button type="button" className="bg-transparent border-0 text-blue-500 font-semibold cursor-pointer p-0">Forgot password?</button>
             </div>
-            <button className="border-0 rounded-xl px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-slate-950 font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30" type="submit">Sign in</button>
+            <button 
+              className="border-0 rounded-xl px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed" 
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
             <div className="relative text-center text-xs text-slate-500 before:content-[''] before:absolute before:top-1/2 before:left-0 before:w-[36%] before:h-px before:bg-slate-300 after:content-[''] after:absolute after:top-1/2 after:right-0 after:w-[36%] after:h-px after:bg-slate-300">
               <span>or continue with</span>
             </div>
