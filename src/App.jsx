@@ -7,6 +7,7 @@ import ShopPage from './pages/ShopPage';
 import CartPage from './pages/CartPage';
 import RentPage from './pages/RentPage';  
 import ServicesPage from './pages/ServicesPage';
+import RegisterPage from './pages/RegisterPage';
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
            <Route path="/rent" element={<RentPage />} />
            <Route path="/services" element={<ServicesPage />} />
+           <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </main>
       <Footer />
