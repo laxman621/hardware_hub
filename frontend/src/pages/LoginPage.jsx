@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 
 export default function Login() { 
   return (
@@ -51,7 +52,7 @@ export default function Login() {
               <button type="button" className="border border-slate-300 rounded-xl px-3 py-2.5 bg-white cursor-pointer font-semibold text-slate-900 hover:bg-slate-50 transition-colors">GitHub</button>
             </div>
             <p className="m-0 text-center text-slate-600 text-sm">
-              New here? <button type="button" className="bg-transparent border-0 text-blue-500 font-semibold cursor-pointer p-0">Create an account</button>
+              New here? <button type="button" className="bg-transparent border-0 text-blue-500 font-semibold cursor-pointer p-0"><Link to="/register">Create an account</Link></button>
             </p>
           </form>
         </section>
