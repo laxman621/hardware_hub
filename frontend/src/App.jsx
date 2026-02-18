@@ -16,6 +16,7 @@ function App() {
   
 
   return (
+  <AuthProvider>
     <div className="app-shell">
       <Navbar title="Hardware Hub" />
       <main>
@@ -31,6 +32,7 @@ function App() {
       </main>
       <Footer />
     </div>
+  </AuthProvider>
   );
 }
 
