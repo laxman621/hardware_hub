@@ -45,7 +45,7 @@ export default function Footer() {
               </div>
               <div>
                 <span className="text-2xl font-bold tracking-tight">
-                  Pro<span className="text-blue-400">Tool</span>
+                  Hardware<span className="text-blue-400">Hub</span>
                 </span>
                 <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Industrial Supply
@@ -118,7 +118,7 @@ export default function Footer() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800/60">
                   <Mail className="h-4 w-4 text-blue-400" />
                 </span>
-                <span>info@protool.com</span>
+                <span>info@Harware Hub.com</span>
               </li>
             </ul>
 
@@ -141,7 +141,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-800/70 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-slate-400">
-            © 2024 ProTool. All rights reserved.
+            © 2024 Harware Hub. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-4 text-sm">
             <a href="/" className="text-slate-400 hover:text-blue-400 transition-colors">
