@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 const categories = [
   'Power Tools',
@@ -12,83 +12,44 @@ const categories = [
 
 const ratings = [5, 4, 3]
 
-const products = [
-  {
-    id: 1,
-    name: 'Titan 18V Brushless Drill Kit',
-    tag: 'Best Seller',
-    price: 189.0,
-    rating: 5,
-    reviews: 1328,
-    ship: 'Free next-day',
-  },
-  {
-    id: 2,
-    name: 'ForgeMax 7-1/4 in Circular Saw',
-    tag: 'Limited Deal',
-    price: 139.0,
-    rating: 4,
-    reviews: 842,
-    ship: 'Free delivery',
-  },
-  {
-    id: 3,
-    name: 'Impact Driver + Bit Set (42 pcs)',
-    tag: 'Bundle',
-    price: 99.0,
-    rating: 4,
-    reviews: 514,
-    ship: 'Ships today',
-  },
-  {
-    id: 4,
-    name: 'ProSteel Socket Set 1/4"-1/2"',
-    tag: 'Prime',
-    price: 74.5,
-    rating: 5,
-    reviews: 976,
-    ship: 'Free delivery',
-  },
-  {
-    id: 5,
-    name: 'ArcShield Safety Goggles (2 pack)',
-    tag: 'Prime',
-    price: 18.99,
-    rating: 4,
-    reviews: 260,
-    ship: 'Free delivery',
-  },
-  {
-    id: 6,
-    name: 'Precision Multimeter 6000 Count',
-    tag: 'Pro Pick',
-    price: 58.0,
-    rating: 4,
-    reviews: 311,
-    ship: 'Ships today',
-  },
-  {
-    id: 7,
-    name: 'RapidGrip Pipe Wrench 14 in',
-    tag: 'Prime',
-    price: 24.5,
-    rating: 3,
-    reviews: 198,
-    ship: 'Free delivery',
-  },
-  {
-    id: 8,
-    name: 'Wall Organizer + 30 Bins',
-    tag: 'Workshop',
-    price: 89.0,
-    rating: 4,
-    reviews: 455,
-    ship: 'Free delivery',
-  },
-]
-
 export default function ShopPage() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [sliderValue, setSliderValue] = useState(100000)
+  const [maxPrice, setMaxPrice] = useState(100000)
+
+  // Fetch hardware from backend
+  useEffect(() => {
+    const fetchHardware = async () => {
+      try {
+        setLoading(true)
+        let url = 'http://localhost:5000/api/hardware'
+        if (selectedCategory) url += `?category=${encodeURIComponent(selectedCategory)}`
+        const res = await fetch(url)
+        const data = await res.json()
+        if (data.success) {
+          setProducts(data.data)
+        } else {
+          setError('Failed to load products')
+        }
+      } catch (err) {
+        setError('Cannot connect to server')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchHardware()
+  }, [selectedCategory])
+
+  // Filter by search query and price
+  const filteredProducts = products.filter(p =>
+    (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))) &&
+    parseFloat(p.price) <= maxPrice
+  )
 
   return (
     <div className="px-5 sm:px-8 lg:px-14 py-8">
@@ -172,7 +133,12 @@ export default function ShopPage() {
         <aside className="rounded-3xl bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-slate-900">Filters</h2>
-            <button className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Reset</button>
+            <button
+              className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+              onClick={() => { setSelectedCategory(null); setSliderValue(100000); setMaxPrice(100000) }}
+            >
+              Reset
+            </button>
           </div>
           <div className="mt-6">
             <p className="text-sm font-semibold text-slate-700">Categories</p>
@@ -180,10 +146,14 @@ export default function ShopPage() {
               {categories.map((category) => (
                 <label
                   key={category}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  onClick={() => setSelectedCategory(category)}
+                  className={`flex items-center justify-between rounded-xl border px-3 py-2 text-sm cursor-pointer transition
+                    ${selectedCategory === category
+                      ? 'border-slate-900 bg-slate-900 text-white'
+                      : 'border-slate-200 text-slate-700 hover:border-slate-400'}`}
                 >
-                  <span className="text-slate-700">{category}</span>
-                  <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-500">Hot</span>
+                  <span>{category}</span>
+                  <span className={`rounded-full px-2 py-1 text-xs ${selectedCategory === category ? 'bg-white text-slate-900' : 'bg-slate-100 text-slate-500'}`}>Hot</span>
                 </label>
               ))}
             </div>
@@ -206,19 +176,24 @@ export default function ShopPage() {
             <p className="text-sm font-semibold text-slate-700">Price range</p>
             <div className="mt-3 rounded-2xl border border-slate-200 px-4 py-4">
               <div className="flex items-center justify-between text-xs text-slate-500">
-                <span>$0</span>
-                <span>$500+</span>
+                <span>NPR 0</span>
+                <span>NPR 1,00,000</span>
               </div>
               <input
                 type="range"
                 min="0"
-                max="500"
-                defaultValue="250"
+                max="100000"
+                step="1000"
+                value={sliderValue}
+                onChange={(e) => setSliderValue(Number(e.target.value))}
                 className="mt-3 w-full accent-slate-900"
               />
               <div className="mt-2 flex items-center justify-between text-sm text-slate-600">
-                <span>Up to $250</span>
-                <button className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <span>Up to NPR {sliderValue.toLocaleString()}</span>
+                <button
+                  onClick={() => setMaxPrice(sliderValue)}
+                  className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-900 hover:text-amber-600 transition-colors"
+                >
                   Apply
                 </button>
               </div>
@@ -229,44 +204,98 @@ export default function ShopPage() {
         <section>
           <div>
             <h2 className="text-2xl font-semibold text-slate-900">Trending hardware</h2>
-            <p className="text-sm text-slate-500">128 results • updated daily</p>
+            <p className="text-sm text-slate-500">{filteredProducts.length} results • updated daily</p>
           </div>
 
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {products.map((product) => (
-              <article
-                key={product.id}
-                className="group rounded-3xl bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
-              >
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-200 via-slate-100 to-slate-50 p-6">
-                  <span className="rounded-full bg-slate-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-white">
-                    {product.tag}
-                  </span>
-                  <div className="mt-6 h-28 w-full rounded-2xl bg-gradient-to-br from-slate-300 to-slate-100" />
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-base font-semibold text-slate-900">{product.name}</h3>
-                  <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                    <span className="text-amber-500">{'★★★★★'.slice(0, product.rating)}</span>
-                    <span>({product.reviews})</span>
+          {/* Loading state */}
+          {loading && (
+            <div className="mt-10 flex justify-center">
+              <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div className="mt-10 rounded-2xl bg-red-50 p-6 text-center text-red-600">
+              ⚠️ {error}
+            </div>
+          )}
+
+          {/* Products grid */}
+          {!loading && !error && (
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {filteredProducts.map((product) => (
+                <article
+                  key={product.hardwareId}
+                  className="group flex flex-col rounded-3xl bg-white shadow-[0_8px_30px_rgba(15,23,42,0.10)] hover:shadow-[0_16px_48px_rgba(15,23,42,0.18)] transition-shadow duration-300 overflow-hidden"
+                >
+                  {/* Image container — fixed aspect ratio, no cropping */}
+                  <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="absolute inset-0 h-full w-full object-contain bg-slate-50 p-4"
+                        onError={(e) => {
+                          e.target.onerror = null
+                          e.target.src = 'https://placehold.co/400x300?text=No+Image'
+                        }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-slate-400 text-sm">
+                        No Image
+                      </div>
+                    )}
+                    {/* Category badge — top-left overlay */}
+                    <span className="absolute top-3 left-3 rounded-full bg-slate-900/80 backdrop-blur-sm px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white">
+                      {product.category || 'Hardware'}
+                    </span>
+                    {/* Stock badge — top-right overlay */}
+                    {product.stockQuantity > 0 ? (
+                      <span className="absolute top-3 right-3 rounded-full bg-emerald-500/90 backdrop-blur-sm px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white">
+                        In Stock
+                      </span>
+                    ) : (
+                      <span className="absolute top-3 right-3 rounded-full bg-red-500/90 backdrop-blur-sm px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white">
+                        Sold Out
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-3 flex items-end justify-between">
-                    <div>
-                      <p className="text-2xl font-semibold text-slate-900">
-                        ${product.price.toFixed(2)}
-                      </p>
-                      <p className="text-xs uppercase tracking-[0.2em] text-emerald-600">
-                        {product.ship}
-                      </p>
+
+                  {/* Card body */}
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2">{product.name}</h3>
+                    {product.description && (
+                      <p className="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                    )}
+                    <div className="mt-auto pt-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-xl font-bold text-slate-900">
+                          NPR {parseFloat(product.price).toLocaleString()}
+                        </p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          {product.stockQuantity > 0 ? `${product.stockQuantity} units available` : 'Out of stock'}
+                        </p>
+                      </div>
+                      <button
+                        disabled={!product.isAvailable}
+                        className="rounded-2xl bg-slate-900 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-transform duration-200 group-hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
+                      >
+                        Add to Cart
+                      </button>
                     </div>
-                    <button className="rounded-2xl bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white transition group-hover:-translate-y-0.5">
-                      Add to cart
-                    </button>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          )}
+
+          {/* No results */}
+          {!loading && !error && filteredProducts.length === 0 && (
+            <div className="mt-10 rounded-2xl bg-slate-50 p-10 text-center text-slate-500">
+              No products found.
+            </div>
+          )}
         </section>
       </div>
     </div>
