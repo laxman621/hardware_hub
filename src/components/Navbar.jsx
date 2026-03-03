@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const navigation = [
   { name: 'Shop', href: '/shop' },
   { name: 'Rent', href: '/rent' },
-  { name: 'Services', href: '/services' },
+  { name: 'Professionals', href: '/professionals' },
 ];
 
 export default function Navbar(props) {

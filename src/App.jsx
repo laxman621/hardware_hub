@@ -6,7 +6,7 @@ import Home from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
 import CartPage from './pages/CartPage';
 import RentPage from './pages/RentPage';  
-import ServicesPage from './pages/ServicesPage';
+import ProfessionalsPage from './pages/ProfessionalsPage';
 import RegisterPage from './pages/RegisterPage';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -27,7 +27,7 @@ function App() {
           <Route path="/shop" element={<ProtectedRoute><ShopPage /></ProtectedRoute>} />
           <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
           <Route path="/rent" element={<ProtectedRoute><RentPage /></ProtectedRoute>} />
-          <Route path="/services" element={<ProtectedRoute><ServicesPage /></ProtectedRoute>} />
+          <Route path="/professionals" element={<ProtectedRoute><ProfessionalsPage /></ProtectedRoute>} />
         </Routes>
       </main>
       <Footer />
