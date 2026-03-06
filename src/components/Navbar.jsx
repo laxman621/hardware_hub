@@ -84,9 +84,17 @@ export default function Navbar(props) {
 
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <span className="hidden sm:inline text-sm text-slate-300">
-                  Hi, {user?.name || user?.email?.split('@')[0]}
-                </span>
+                <Link
+                  to="/dashboard"
+                  className={
+                    location.pathname === '/dashboard'
+                      ? 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-blue-400 bg-blue-400/15 no-underline transition-all'
+                      : 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-blue-400 hover:bg-slate-800/60 no-underline transition-all'
+                  }
+                >
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">{user?.name?.split(' ')[0] ?? 'Dashboard'}</span>
+                </Link>
                 <button 
                   onClick={handleLogout}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/60 text-slate-300 text-sm font-semibold border-0 cursor-pointer transition-all hover:bg-slate-700 hover:text-white"

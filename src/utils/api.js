@@ -1,219 +1,84 @@
-// API Base URL
-const API_URL = 'http://localhost:5000/api';
+// ─── Base URL ─────────────────────────────────────────────────────────────────
+const BASE_URL = 'http://localhost:5000/api';
 
-// Helper function to get auth token
-const getAuthToken = () => {
-  return localStorage.getItem('token');
-};
+// ─── Authenticated fetch helper ───────────────────────────────────────────────
+const fetchAPI = async (endpoint, options = {}) => {
+  const token = localStorage.getItem('token');
 
-// Helper function to make authenticated requests
-const authFetch = async (url, options = {}) => {
-  const token = getAuthToken();
-  
   const config = {
-    ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
     credentials: 'include',
+    ...options,
   };
 
-  const response = await fetch(`${API_URL}${url}`, config);
-  const data = await response.json();
-  
-  return data;
+  const response = await fetch(`${BASE_URL}${endpoint}`, config);
+  return response.json();
 };
 
-// Auth APIs
+// ─── Auth API ─────────────────────────────────────────────────────────────────
 export const authAPI = {
-  register: async (userData) => {
-    return authFetch('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
-  },
-
-  login: async (credentials) => {
-    return authFetch('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
-  },
-
-  logout: async () => {
-    return authFetch('/auth/logout', {
-      method: 'POST',
-    });
-  },
-
-  getProfile: async () => {
-    return authFetch('/auth/profile');
-  },
-
-  changePassword: async (passwords) => {
-    return authFetch('/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify(passwords),
-    });
-  },
+  register:       (userData)    => fetchAPI('/auth/register',        { method: 'POST', body: JSON.stringify(userData) }),
+  login:          (credentials) => fetchAPI('/auth/login',           { method: 'POST', body: JSON.stringify(credentials) }),
+  logout:         ()            => fetchAPI('/auth/logout',          { method: 'POST' }),
+  getProfile:     ()            => fetchAPI('/auth/profile'),
+  changePassword: (passwords)   => fetchAPI('/auth/change-password', { method: 'POST', body: JSON.stringify(passwords) }),
 };
 
-// Products APIs
-export const productsAPI = {
-  getAll: async (filters = {}) => {
-    const queryParams = new URLSearchParams(filters).toString();
-    return authFetch(`/products${queryParams ? `?${queryParams}` : ''}`);
-  },
-
-  getById: async (id) => {
-    return authFetch(`/products/${id}`);
-  },
-
-  create: async (productData) => {
-    return authFetch('/products', {
-      method: 'POST',
-      body: JSON.stringify(productData),
-    });
-  },
-
-  update: async (id, productData) => {
-    return authFetch(`/products/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(productData),
-    });
-  },
-
-  delete: async (id) => {
-    return authFetch(`/products/${id}`, {
-      method: 'DELETE',
-    });
-  },
-
-  getByCategory: async (category) => {
-    return authFetch(`/products/category/${category}`);
-  },
+// ─── Hardware API ─────────────────────────────────────────────────────────────
+export const hardwareAPI = {
+  getAll:  (params) => fetchAPI(`/hardware${params ? '?' + new URLSearchParams(params) : ''}`),
+  getById: (id)     => fetchAPI(`/hardware/${id}`),
+  create:  (data)   => fetchAPI('/hardware',    { method: 'POST',   body: JSON.stringify(data) }),
+  update:  (id, data) => fetchAPI(`/hardware/${id}`, { method: 'PUT',  body: JSON.stringify(data) }),
+  delete:  (id)     => fetchAPI(`/hardware/${id}`,   { method: 'DELETE' }),
 };
 
-// Rentals APIs
-export const rentalsAPI = {
-  getAll: async (filters = {}) => {
-    const queryParams = new URLSearchParams(filters).toString();
-    return authFetch(`/rentals${queryParams ? `?${queryParams}` : ''}`);
-  },
-
-  getById: async (id) => {
-    return authFetch(`/rentals/${id}`);
-  },
-
-  getMyRentals: async () => {
-    return authFetch('/rentals/my-rentals');
-  },
-
-  create: async (rentalData) => {
-    return authFetch('/rentals', {
-      method: 'POST',
-      body: JSON.stringify(rentalData),
-    });
-  },
-
-  update: async (id, rentalData) => {
-    return authFetch(`/rentals/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(rentalData),
-    });
-  },
-
-  delete: async (id) => {
-    return authFetch(`/rentals/${id}`, {
-      method: 'DELETE',
-    });
-  },
+// ─── Professionals API ────────────────────────────────────────────────────────
+export const professionalAPI = {
+  getAll:  (params)   => fetchAPI(`/professionals${params ? '?' + new URLSearchParams(params) : ''}`),
+  getById: (id)       => fetchAPI(`/professionals/${id}`),
+  create:  (data)     => fetchAPI('/professionals',    { method: 'POST',   body: JSON.stringify(data) }),
+  update:  (id, data) => fetchAPI(`/professionals/${id}`, { method: 'PUT',  body: JSON.stringify(data) }),
+  delete:  (id)       => fetchAPI(`/professionals/${id}`, { method: 'DELETE' }),
 };
 
-// Professionals APIs
-export const professionalsAPI = {
-  getAll: async (filters = {}) => {
-    const queryParams = new URLSearchParams(filters).toString();
-    return authFetch(`/professionals${queryParams ? `?${queryParams}` : ''}`);
-  },
-
-  getById: async (id) => {
-    return authFetch(`/professionals/${id}`);
-  },
-
-  getByExpertise: async (expertise) => {
-    return authFetch(`/professionals/expertise/${expertise}`);
-  },
-
-  create: async (professionalData) => {
-    return authFetch('/professionals', {
-      method: 'POST',
-      body: JSON.stringify(professionalData),
-    });
-  },
-
-  update: async (id, professionalData) => {
-    return authFetch(`/professionals/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(professionalData),
-    });
-  },
-
-  delete: async (id) => {
-    return authFetch(`/professionals/${id}`, {
-      method: 'DELETE',
-    });
-  },
+// ─── Rental API ───────────────────────────────────────────────────────────────
+export const rentalAPI = {
+  getAll:         ()       => fetchAPI('/rentals'),
+  getById:        (id)     => fetchAPI(`/rentals/${id}`),
+  getUserRentals: (userId) => fetchAPI(`/rentals/user/${userId}`),
+  create:         (data)   => fetchAPI('/rentals',            { method: 'POST', body: JSON.stringify(data) }),
+  returnRental:   (id)     => fetchAPI(`/rentals/${id}/return`, { method: 'PUT' }),
+  updateStatus:   (id, status) => fetchAPI(`/rentals/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
 };
 
-// Orders APIs
-export const ordersAPI = {
-  getAll: async (filters = {}) => {
-    const queryParams = new URLSearchParams(filters).toString();
-    return authFetch(`/orders${queryParams ? `?${queryParams}` : ''}`);
-  },
+// ─── Booking API ──────────────────────────────────────────────────────────────
+export const bookingAPI = {
+  getAll:          ()       => fetchAPI('/bookings'),
+  getById:         (id)     => fetchAPI(`/bookings/${id}`),
+  getUserBookings: (userId) => fetchAPI(`/bookings/user/${userId}`),
+  create:          (data)   => fetchAPI('/bookings',              { method: 'POST', body: JSON.stringify(data) }),
+  cancel:          (id)     => fetchAPI(`/bookings/${id}/cancel`, { method: 'PUT' }),
+  updateStatus:    (id, status) => fetchAPI(`/bookings/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
+};
 
-  getById: async (id) => {
-    return authFetch(`/orders/${id}`);
-  },
-
-  getMyOrders: async () => {
-    return authFetch('/orders/my-orders');
-  },
-
-  create: async (orderData) => {
-    return authFetch('/orders', {
-      method: 'POST',
-      body: JSON.stringify(orderData),
-    });
-  },
-
-  update: async (id, orderData) => {
-    return authFetch(`/orders/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(orderData),
-    });
-  },
-
-  cancel: async (id) => {
-    return authFetch(`/orders/${id}/cancel`, {
-      method: 'PUT',
-    });
-  },
-
-  delete: async (id) => {
-    return authFetch(`/orders/${id}`, {
-      method: 'DELETE',
-    });
-  },
+// ─── Payment API ──────────────────────────────────────────────────────────────
+export const paymentAPI = {
+  getAll:       ()     => fetchAPI('/payments'),
+  getById:      (id)   => fetchAPI(`/payments/${id}`),
+  getMyPayments: ()    => fetchAPI('/payments/my'),
+  create:       (data) => fetchAPI('/payments', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 export default {
-  auth: authAPI,
-  products: productsAPI,
-  rentals: rentalsAPI,
-  professionals: professionalsAPI,
-  orders: ordersAPI,
+  auth:         authAPI,
+  hardware:     hardwareAPI,
+  professional: professionalAPI,
+  rental:       rentalAPI,
+  booking:      bookingAPI,
+  payment:      paymentAPI,
 };

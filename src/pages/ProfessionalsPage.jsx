@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { professionalsAPI } from '../utils/api'
+import { professionalAPI } from '../utils/api'
 
 const skills = [
   'Electrician',

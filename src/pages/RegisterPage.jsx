@@ -240,9 +240,7 @@ export default function RegisterPage() {
 
           <p className="m-0 text-center text-slate-600 text-sm">
             Already have an account?{' '}
-            <button type="button" className="bg-transparent border-0 text-slate-600 font-semibold cursor-pointer p-0">
-              <Link to="/login">Sign in</Link>
-            </button>
+            <Link to="/login" className="text-blue-500 font-semibold no-underline hover:underline">Sign in</Link>
           </p>
         </form>
       </section>

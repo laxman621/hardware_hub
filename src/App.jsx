@@ -8,6 +8,7 @@ import CartPage from './pages/CartPage';
 import RentPage from './pages/RentPage';  
 import ProfessionalsPage from './pages/ProfessionalsPage';
 import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import './App.css';
@@ -28,6 +29,7 @@ function App() {
           <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
           <Route path="/rent" element={<ProtectedRoute><RentPage /></ProtectedRoute>} />
           <Route path="/professionals" element={<ProtectedRoute><ProfessionalsPage /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         </Routes>
       </main>
       <Footer />
