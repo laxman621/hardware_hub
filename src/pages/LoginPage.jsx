@@ -29,9 +29,15 @@ export default function Login() {
         login(data.token, data.user);
 
         console.log('Login successful, redirecting to home...')
-        
-        // Redirect to home page
-        navigate('/')
+
+        const role = data.user?.role;
+        if (role === 'admin') {
+          navigate('/admin/dashboard');
+        } else if (role === 'professional') {
+          navigate('/professional/dashboard');
+        } else {
+          navigate('/');
+        }
         
       } else {
         setError(data.message || 'Login failed')

@@ -44,6 +44,10 @@ export const professionalAPI = {
   create:  (data)     => fetchAPI('/professionals',    { method: 'POST',   body: JSON.stringify(data) }),
   update:  (id, data) => fetchAPI(`/professionals/${id}`, { method: 'PUT',  body: JSON.stringify(data) }),
   delete:  (id)       => fetchAPI(`/professionals/${id}`, { method: 'DELETE' }),
+  getMyProfile: ()    => fetchAPI('/professionals/me'),
+  updateMyProfile: (data) => fetchAPI('/professionals/me', { method: 'PUT', body: JSON.stringify(data) }),
+  updateMyAvailability: (isAvailable) => fetchAPI('/professionals/me/availability', { method: 'PATCH', body: JSON.stringify({ isAvailable }) }),
+  getMyBookings: (params) => fetchAPI(`/professionals/me/bookings${params ? '?' + new URLSearchParams(params) : ''}`),
 };
 
 // ─── Rental API ───────────────────────────────────────────────────────────────
@@ -74,6 +78,14 @@ export const paymentAPI = {
   create:       (data) => fetchAPI('/payments', { method: 'POST', body: JSON.stringify(data) }),
 };
 
+// ─── Admin API ────────────────────────────────────────────────────────────────
+export const adminAPI = {
+  getAllProfessionals: (params) => fetchAPI(`/professionals/admin/all${params ? '?' + new URLSearchParams(params) : ''}`),
+  createProfessional: (data) => fetchAPI('/professionals/admin', { method: 'POST', body: JSON.stringify(data) }),
+  updateProfessional: (id, data) => fetchAPI(`/professionals/admin/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteProfessional: (id) => fetchAPI(`/professionals/admin/${id}`, { method: 'DELETE' }),
+};
+
 export default {
   auth:         authAPI,
   hardware:     hardwareAPI,
@@ -81,4 +93,5 @@ export default {
   rental:       rentalAPI,
   booking:      bookingAPI,
   payment:      paymentAPI,
+  admin:        adminAPI,
 };
