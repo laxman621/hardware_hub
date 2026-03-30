@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { professionalAPI } from '../utils/api'
+import { professionalAPI, bookingAPI } from '../utils/api'
 
 const skills = [
   'Electrician',
@@ -90,23 +90,16 @@ export default function ProfessionalsPage() {
     setBookingLoading(true)
     setBookingStatus(null)
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch('http://localhost:5000/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          professionalId: bookingModal.professionalId,
-          bookingDate: bookingForm.bookingDate,
-          serviceHours: parseInt(bookingForm.serviceHours),
-          notes: bookingForm.notes,
-        }),
+      const data = await bookingAPI.create({
+        professionalId: bookingModal.professionalId,
+        bookingDate: bookingForm.bookingDate,
+        serviceHours: parseInt(bookingForm.serviceHours),
+        notes: bookingForm.notes,
       })
-      const data = await res.json()
+
       if (data.success) {
-        setBookingStatus({ type: 'success', message: `Booking confirmed! Total: NPR ${parseFloat(data.data.totalAmount).toLocaleString()}` })
+        const amount = parseFloat(data?.data?.totalAmount || 0)
+        setBookingStatus({ type: 'success', message: `Booking confirmed! Total: NPR ${amount.toLocaleString()}` })
         setBookingForm({ bookingDate: '', serviceHours: '', notes: '' })
       } else {
         setBookingStatus({ type: 'error', message: data.message || 'Booking failed' })

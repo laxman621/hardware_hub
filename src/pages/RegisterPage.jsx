@@ -1,12 +1,9 @@
 
    import React, { useState } from 'react'
    import { Link, useNavigate } from 'react-router-dom';
-   import { useAuth } from '../context/AuthContext';
-   import { authAPI } from '../utils/api';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -17,7 +14,12 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: ''
+    phone: '',
+    role: 'user',
+    skill: '',
+    experienceYears: '',
+    hourlyRate: '',
+    bio: ''
   });
 
   const handleChange = (e) => {
@@ -47,6 +49,10 @@ export default function RegisterPage() {
       setError('Password must be at least 6 characters');
       return;
     }
+    if (formData.role === 'professional' && !formData.skill) {
+      setError('Skill is required for professional registration');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -59,7 +65,12 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          phone: formData.phone || undefined
+          phone: formData.phone || undefined,
+          role: formData.role,
+          skill: formData.role === 'professional' ? formData.skill : undefined,
+          experienceYears: formData.role === 'professional' && formData.experienceYears !== '' ? Number(formData.experienceYears) : undefined,
+          hourlyRate: formData.role === 'professional' && formData.hourlyRate !== '' ? Number(formData.hourlyRate) : undefined,
+          bio: formData.role === 'professional' ? formData.bio || undefined : undefined,
         })
       });
 
@@ -161,6 +172,71 @@ export default function RegisterPage() {
               className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-slate-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"
             />
           </label>
+
+          <label className="flex flex-col gap-2 text-sm text-slate-900">
+            <span>Register as</span>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-slate-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"
+            >
+              <option value="user">User</option>
+              <option value="professional">Professional</option>
+            </select>
+          </label>
+
+          {formData.role === 'professional' && (
+            <>
+              <label className="flex flex-col gap-2 text-sm text-slate-900">
+                <span>Skill</span>
+                <input
+                  type="text"
+                  name="skill"
+                  required
+                  placeholder="Electrician"
+                  value={formData.skill}
+                  onChange={handleChange}
+                  className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-slate-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-900">
+                <span>Experience Years (optional)</span>
+                <input
+                  type="number"
+                  min="0"
+                  name="experienceYears"
+                  value={formData.experienceYears}
+                  onChange={handleChange}
+                  className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-slate-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-900">
+                <span>Hourly Rate NPR (optional)</span>
+                <input
+                  type="number"
+                  min="0"
+                  name="hourlyRate"
+                  value={formData.hourlyRate}
+                  onChange={handleChange}
+                  className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-slate-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm text-slate-900">
+                <span>Bio (optional)</span>
+                <textarea
+                  name="bio"
+                  rows={3}
+                  value={formData.bio}
+                  onChange={handleChange}
+                  className="border border-slate-300 rounded-xl px-3.5 py-3 text-base bg-slate-100 outline-none transition-all focus:border-slate-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"
+                />
+              </label>
+            </>
+          )}
 
           <label className="flex flex-col gap-2 text-sm text-slate-900">
             <span>Password</span>
