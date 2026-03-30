@@ -1,5 +1,4 @@
-
-   import React, { useState } from 'react'
+import React, { useState } from 'react'
    import { Link, useNavigate } from 'react-router-dom';
    import { useAuth } from '../context/AuthContext';
    import { authAPI } from '../utils/api';
@@ -241,6 +240,10 @@ export default function RegisterPage() {
           <p className="m-0 text-center text-slate-600 text-sm">
             Already have an account?{' '}
             <Link to="/login" className="text-blue-500 font-semibold no-underline hover:underline">Sign in</Link>
+          </p>
+
+          <p className="m-0 text-xs text-slate-500 bg-slate-100 border border-dashed border-slate-300 rounded-lg px-3 py-2">
+            You don’t need any documents to buy products or book professionals. If you ever want to <strong>rent tools or machinery</strong>, you can optionally upload an identity document later from your profile for verification.
           </p>
         </form>
       </section>
