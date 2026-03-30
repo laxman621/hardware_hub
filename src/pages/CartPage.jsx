@@ -1,41 +1,63 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const cartItems = [
-  {
-    id: 1,
-    name: 'Titan 18V Brushless Drill Kit',
-    sku: 'DRL-18V-840',
-    price: 189.0,
-    qty: 1,
-    delivery: 'Arrives tomorrow',
-  },
-  {
-    id: 2,
-    name: 'ProSteel Socket Set 1/4"-1/2"',
-    sku: 'SOC-SET-125',
-    price: 74.5,
-    qty: 2,
-    delivery: 'Ships today',
-  },
-  {
-    id: 3,
-    name: 'ArcShield Safety Goggles (2 pack)',
-    sku: 'SAFE-GOG-2P',
-    price: 18.99,
-    qty: 3,
-    delivery: 'Arrives in 2 days',
-  },
-]
-
-const summaryRows = [
-  { label: 'Subtotal', value: 394.98 },
-  { label: 'Delivery', value: 12.5 },
-  { label: 'Tax (est.)', value: 26.4 },
-]
+const CART_STORAGE_KEY = 'hardwarehub_cart'
+const formatNpr = (value) => `NPR ${Number(value || 0).toLocaleString()}`
 
 export default function CartPage() {
-  const subtotal = summaryRows.reduce((acc, row) => acc + row.value, 0)
+  const [cartItems, setCartItems] = useState([])
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY)
+      setCartItems(raw ? JSON.parse(raw) : [])
+    } catch {
+      setCartItems([])
+    }
+  }, [])
+
+  const updateCart = (nextItems) => {
+    setCartItems(nextItems)
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextItems))
+  }
+
+  const increaseQty = (hardwareId) => {
+    const next = cartItems.map((item) =>
+      item.hardwareId === hardwareId
+        ? { ...item, qty: (item.qty || 1) + 1 }
+        : item
+    )
+    updateCart(next)
+  }
+
+  const decreaseQty = (hardwareId) => {
+    const next = cartItems
+      .map((item) =>
+        item.hardwareId === hardwareId
+          ? { ...item, qty: Math.max(0, (item.qty || 1) - 1) }
+          : item
+      )
+      .filter((item) => item.qty > 0)
+    updateCart(next)
+  }
+
+  const removeItem = (hardwareId) => {
+    const next = cartItems.filter((item) => item.hardwareId !== hardwareId)
+    updateCart(next)
+  }
+
+  const clearCart = () => {
+    updateCart([])
+  }
+
+  const subtotal = useMemo(
+    () => cartItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 1), 0),
+    [cartItems]
+  )
+
+  const delivery = subtotal > 0 ? 150 : 0
+  const tax = subtotal * 0.13
+  const total = subtotal + delivery + tax
 
   return (
     <div className="px-5 sm:px-8 lg:px-14 py-8">
@@ -51,37 +73,71 @@ export default function CartPage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-2xl font-semibold text-slate-900">Cart items</h2>
-            <Link to="/shop" className="text-sm font-semibold text-blue-600 hover:text-blue-700 no-underline transition-colors">
-              ← Continue shopping
-            </Link>
+            <div className="flex items-center gap-4">
+              {cartItems.length > 0 && (
+                <button
+                  onClick={clearCart}
+                  className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 hover:text-red-600 transition-colors"
+                >
+                  Clear cart
+                </button>
+              )}
+              <Link to="/shop" className="text-sm font-semibold text-blue-600 hover:text-blue-700 no-underline transition-colors">
+                ← Continue shopping
+              </Link>
+            </div>
           </div>
+
+          {cartItems.length === 0 && (
+            <div className="rounded-3xl bg-slate-50 p-10 text-center text-slate-500">
+              Your cart is empty. Add products from the shop.
+            </div>
+          )}
+
           {cartItems.map((item) => (
             <article
-              key={item.id}
+              key={item.hardwareId}
               className="rounded-3xl bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-slate-200 via-slate-100 to-slate-50" />
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="h-24 w-24 rounded-2xl object-contain bg-slate-50 p-2"
+                  />
+                ) : (
+                  <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-slate-200 via-slate-100 to-slate-50" />
+                )}
                 <div className="flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h2 className="text-lg font-semibold text-slate-900">{item.name}</h2>
-                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">{item.sku}</p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">{item.category || 'Hardware'}</p>
                     </div>
-                    <p className="text-lg font-semibold text-slate-900">${item.price.toFixed(2)}</p>
+                    <p className="text-lg font-semibold text-slate-900">{formatNpr(item.price)}</p>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
                     <div className="flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
-                      <button className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors">
+                      <button
+                        onClick={() => decreaseQty(item.hardwareId)}
+                        className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors"
+                      >
                         −
                       </button>
                       <span className="font-semibold text-slate-900 px-2">{item.qty}</span>
-                      <button className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors">
+                      <button
+                        onClick={() => increaseQty(item.hardwareId)}
+                        className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors"
+                      >
                         +
                       </button>
                     </div>
-                    <span className="text-emerald-600">{item.delivery}</span>
-                    <button className="ml-auto text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 hover:text-red-600 transition-colors">
+                    <span className="text-emerald-600">Ready for checkout</span>
+                    <button
+                      onClick={() => removeItem(item.hardwareId)}
+                      className="ml-auto text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 hover:text-red-600 transition-colors"
+                    >
                       Remove
                     </button>
                   </div>
@@ -94,19 +150,28 @@ export default function CartPage() {
         <aside className="h-fit rounded-3xl bg-white p-6 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
           <h2 className="text-xl font-semibold text-slate-900">Order summary</h2>
           <div className="mt-5 space-y-3">
-            {summaryRows.map((row) => (
-              <div key={row.label} className="flex items-center justify-between text-sm text-slate-600">
-                <span>{row.label}</span>
-                <span className="font-semibold text-slate-900">${row.value.toFixed(2)}</span>
-              </div>
-            ))}
+            <div className="flex items-center justify-between text-sm text-slate-600">
+              <span>Subtotal</span>
+              <span className="font-semibold text-slate-900">{formatNpr(subtotal)}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-slate-600">
+              <span>Delivery</span>
+              <span className="font-semibold text-slate-900">{formatNpr(delivery)}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-slate-600">
+              <span>Tax (13%)</span>
+              <span className="font-semibold text-slate-900">{formatNpr(tax)}</span>
+            </div>
             <div className="h-px bg-slate-200" />
             <div className="flex items-center justify-between text-base">
               <span className="font-semibold text-slate-900">Total</span>
-              <span className="text-2xl font-semibold text-slate-900">${subtotal.toFixed(2)}</span>
+              <span className="text-2xl font-semibold text-slate-900">{formatNpr(total)}</span>
             </div>
           </div>
-          <button className="mt-6 w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white hover:bg-slate-800 hover:shadow-lg transition-all">
+          <button
+            disabled={cartItems.length === 0}
+            className="mt-6 w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white hover:bg-slate-800 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Proceed to checkout
           </button>
           <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600">

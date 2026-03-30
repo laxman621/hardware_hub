@@ -12,7 +12,7 @@ const footerLinks = {
     { label: 'Safety Gear', href: '/products?category=safety-gear' },
   ],
   services: [
-    { label: 'Equipment Rental', href: '/rentals' },
+    { label: 'Equipment Rental', href: '/rent' },
     { label: 'Tool Repair', href: '/services' },
     { label: 'Consultation', href: '/services' },
     { label: 'Custom Fabrication', href: '/services' },

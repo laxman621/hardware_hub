@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+const CART_STORAGE_KEY = 'hardwarehub_cart'
+
 const categories = [
   'Power Tools',
   'Hand Tools',
@@ -20,6 +22,7 @@ export default function ShopPage() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [sliderValue, setSliderValue] = useState(100000)
   const [maxPrice, setMaxPrice] = useState(100000)
+  const [cartNotice, setCartNotice] = useState('')
 
   // Fetch hardware from backend
   useEffect(() => {
@@ -50,6 +53,37 @@ export default function ShopPage() {
     (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))) &&
     parseFloat(p.price) <= maxPrice
   )
+
+  const handleAddToCart = (product) => {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY)
+      const current = raw ? JSON.parse(raw) : []
+      const index = current.findIndex((item) => item.hardwareId === product.hardwareId)
+
+      if (index >= 0) {
+        current[index] = {
+          ...current[index],
+          qty: (current[index].qty || 1) + 1,
+        }
+      } else {
+        current.push({
+          hardwareId: product.hardwareId,
+          name: product.name,
+          category: product.category || 'Hardware',
+          price: Number(product.price),
+          imageUrl: product.imageUrl || null,
+          qty: 1,
+        })
+      }
+
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(current))
+      setCartNotice(`${product.name} added to cart`)
+      window.setTimeout(() => setCartNotice(''), 1800)
+    } catch {
+      setCartNotice('Could not update cart')
+      window.setTimeout(() => setCartNotice(''), 1800)
+    }
+  }
 
   return (
     <div className="px-5 sm:px-8 lg:px-14 py-8">
@@ -128,6 +162,12 @@ export default function ShopPage() {
           </div>
         </div>
       </section>
+
+      {cartNotice && (
+        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {cartNotice}
+        </div>
+      )}
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[260px_1fr]">
         <aside className="rounded-3xl bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
@@ -278,7 +318,8 @@ export default function ShopPage() {
                         </p>
                       </div>
                       <button
-                        disabled={!product.isAvailable}
+                        disabled={!product.isAvailable || product.stockQuantity <= 0}
+                        onClick={() => handleAddToCart(product)}
                         className="rounded-2xl bg-slate-900 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-transform duration-200 group-hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700"
                       >
                         Add to Cart

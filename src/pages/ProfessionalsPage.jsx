@@ -47,31 +47,34 @@ export default function ProfessionalsPage() {
       try {
         setLoading(true)
         setError(null)
-        let url = 'http://localhost:5000/api/professionals'
-        if (selectedSkill) url += `/skill/${encodeURIComponent(selectedSkill)}`
+        const url = 'http://localhost:5000/api/professionals'
         const res = await fetch(url)
         const data = await res.json()
         if (data.success) {
-          setProfessionals(data.data)
+          // Backend currently returns `professionals` for this resource.
+          setProfessionals(data.professionals || data.data || [])
         } else {
           setError('Failed to load professionals')
+          setProfessionals([])
         }
       } catch {
         setError('Cannot connect to server')
+        setProfessionals([])
       } finally {
         setLoading(false)
       }
     }
     fetchProfessionals()
-  }, [selectedSkill])
+  }, [])
 
   // Client-side filters
   const filtered = professionals.filter(p => {
+    const matchesSkill = selectedSkill ? p.skill === selectedSkill : true
     const matchesSearch =
       p.skill.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (p.bio && p.bio.toLowerCase().includes(searchQuery.toLowerCase()))
     const matchesExp = (p.experienceYears || 0) >= minExperience
-    return matchesSearch && matchesExp
+    return matchesSkill && matchesSearch && matchesExp
   })
 
   // Open booking modal
