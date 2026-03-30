@@ -68,6 +68,7 @@ export const bookingAPI = {
   create:          (data)   => fetchAPI('/bookings',              { method: 'POST', body: JSON.stringify(data) }),
   cancel:          (id)     => fetchAPI(`/bookings/${id}/cancel`, { method: 'PUT' }),
   updateStatus:    (id, status) => fetchAPI(`/bookings/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
+  remove:          (id)     => fetchAPI(`/bookings/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Payment API ──────────────────────────────────────────────────────────────
