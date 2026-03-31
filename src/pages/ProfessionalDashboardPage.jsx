@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { authAPI, professionalAPI } from '../utils/api';
+import { authAPI, bookingAPI, professionalAPI } from '../utils/api';
 
 const fmt = (d) =>
   d ? new Date(d).toLocaleDateString('en-NP', { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
@@ -15,6 +15,7 @@ export default function ProfessionalDashboardPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState({ profile: true, pro: true, bookings: true });
   const [msg, setMsg] = useState(null);
+  const [bookingActionLoading, setBookingActionLoading] = useState(null);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -69,6 +70,37 @@ export default function ProfessionalDashboardPage() {
       }
     } catch {
       setMsg({ type: 'error', text: 'Network error updating availability.' });
+    }
+  };
+
+  const handleBookingDecision = async (bookingId, status) => {
+    setMsg(null);
+    setBookingActionLoading(bookingId);
+
+    try {
+      const res =
+        status === 'cancelled'
+          ? await bookingAPI.remove(bookingId)
+          : await bookingAPI.updateStatus(bookingId, status);
+
+      if (res.success) {
+        setBookings((prev) =>
+          status === 'cancelled'
+            ? prev.filter((b) => b.bookingId !== bookingId)
+            : prev.map((b) => (b.bookingId === bookingId ? { ...b, status } : b))
+        );
+
+        setMsg({
+          type: 'success',
+          text: status === 'confirmed' ? 'Booking accepted successfully.' : 'Booking rejected and removed successfully.',
+        });
+      } else {
+        setMsg({ type: 'error', text: res.message || 'Could not update booking status.' });
+      }
+    } catch {
+      setMsg({ type: 'error', text: 'Network error while updating booking status.' });
+    } finally {
+      setBookingActionLoading(null);
     }
   };
 
@@ -174,6 +206,25 @@ export default function ProfessionalDashboardPage() {
                     <p>Created: <strong>{fmt(booking.createdAt)}</strong></p>
                   </div>
                   {booking.notes && <p className="mt-2 text-sm text-slate-500">Note: {booking.notes}</p>}
+
+                  {(booking.status || 'pending') === 'pending' && (
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        onClick={() => handleBookingDecision(booking.bookingId, 'confirmed')}
+                        disabled={bookingActionLoading === booking.bookingId}
+                        className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {bookingActionLoading === booking.bookingId ? 'Updating...' : 'Accept'}
+                      </button>
+                      <button
+                        onClick={() => handleBookingDecision(booking.bookingId, 'cancelled')}
+                        disabled={bookingActionLoading === booking.bookingId}
+                        className="rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-white hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {bookingActionLoading === booking.bookingId ? 'Updating...' : 'Reject'}
+                      </button>
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
